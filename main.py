@@ -9,10 +9,10 @@ from machine import SPI, Pin
 
 led = Pin("LED", Pin.OUT)
 ssid = 'Humpty'
-password = 'ttIImm11&&'
+password = '********'
 
 HOST = "0.0.0.0"
-PORT = 22223  # Port to listen on (non-privileged ports are > 1023)
+PORT = 22223
 
 spi = SPI(0, baudrate=400000, polarity=0, phase=0, bits=8, firstbit=SPI.MSB, sck=Pin(2), mosi=Pin(3), miso=Pin(4))
 csA = Pin(1, mode=Pin.OUT, value=1)
@@ -22,9 +22,9 @@ in_buf = bytearray(b'\x00\x00\x00')
 PinsA = [0, 1, 2, 3, 4, 5, 6, 7]
 PinsB = [0, 1, 2, 3, 4, 5, 6, 7]
 R1 = 10000
-Ta = [0.0]*16 #, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+Ta = [0.0]*16
 TaLast = Ta
-TaRising = [False]*16 #, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False]
+TaRising = [False]*16
 c1 = 0.001125308852122
 c2 = 0.000234711863267
 c3 = 0.000000085663516
@@ -53,15 +53,9 @@ def open_socket(ip):
     connection.listen(1)
     conn, addr = connection.accept()
     print(f"Connected by {addr}")
-    #    with conn:
-    #        print(f"Connected by {addr}")
-    # while True:
     data = conn.recv(1024)
-    #print(data)
-    #    if not data:
-    #        break
     conn.sendall(data)
-    return conn # ection
+    return conn
 
 
 def convert_to_temp(Vo):
