@@ -6,11 +6,14 @@ import machine
 import network
 import socket
 from time import sleep
-from machine import SPI, Pin
+from machine import SPI, Pin, UART
+
+# Initialize UART1 on GP8 (TX) and GP9 (RX) at 9600 baud rate
+uart = UART(1, baudrate=9600, tx=Pin(8), rx=Pin(9)) #
 
 led = Pin("LED", Pin.OUT)
 ssid = 'Humpty'
-password = '**********'
+password = 'ttIImm11&&'
 
 HOST = "0.0.0.0"
 PORT = 22223
@@ -127,6 +130,10 @@ try:
                 temperature_buf.extend(buf)
             print(temperature_buf)
             conn.sendall(temperature_buf)
+            uart.write(b"Hello over UART pins!\n")
+            if uart.any() > 0:
+                incoming_data = uart.readline()
+                print("Received:", incoming_data.decode('utf-8'))
             Ta = [0.0]*16
             sleep(3)
             # boiler flow temperature set
