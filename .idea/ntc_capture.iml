@@ -12,9 +12,12 @@
       <sourceFolder url="file://$MODULE_DIR$" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/venv" />
       <excludeFolder url="file://$MODULE_DIR$/.idea" />
+      <excludeFolder url="file://$MODULE_DIR$/venv10" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.9 (ntc_capture)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.10 (ntc_capture) (2)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="MicroPython" level="project" />
+    <orderEntry type="library" name="MicroPython" level="project" />
     <orderEntry type="library" name="MicroPython" level="project" />
   </component>
 </module>

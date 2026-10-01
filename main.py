@@ -1,3 +1,4 @@
+# import digital_pot
 import struct
 import math
 
@@ -9,7 +10,7 @@ from machine import SPI, Pin
 
 led = Pin("LED", Pin.OUT)
 ssid = 'Humpty'
-password = '********'
+password = '**********'
 
 HOST = "0.0.0.0"
 PORT = 22223
@@ -36,16 +37,24 @@ def connect():
     wlan = network.WLAN(network.STA_IF)
     wlan.active(True)
     wlan.connect(ssid, password)
+    count = 0
     while not wlan.isconnected():
         print('Waiting for connection...')
-        sleep(2)
+        led.high()
+        if count > 60:
+            wlan.disconnect()
+            machine.reset()
+        sleep(1)
+        led.low()
+        sleep(1)
+        count = count + 1
     led.high()
     ip = wlan.ifconfig()[0]
     print(ip)
-    return ip
+    return ip, wlan
 
 
-def open_socket(ip):
+def open_socket():
     # Open a socket
     address = (HOST, PORT)
     connection = socket.socket()
@@ -87,11 +96,12 @@ def capture(pin, cs):
 try:
     led.high()
     sleep(3)
-    ip = connect()
+    ip, wlan = connect()
     led.low()
-    sleep(1)
+    sleep(2)
     led.high()
-    conn = open_socket(ip)
+    conn = open_socket()
+    sleep(1)
     led.low()
     sleep(1)
     while True:
@@ -103,12 +113,12 @@ try:
             for i in range(len(Ta)):
                 TaDelta = Ta[i] - TaLast[i]
                 if TaDelta > 0.0:
-                    if (TaRising[i] is False) & (TaDelta < 0.1):
+                    if (TaRising[i] is False) & (TaDelta < 20):
                         Ta[i] = TaLast[i]
                     else:
                         TaRising[i] = True
                 else:
-                    if (TaRising[i] is True) & (TaDelta > -0.1):
+                    if (TaRising[i] is True) & (TaDelta > -20):
                         Ta[i] = TaLast[i]
                     else:
                         TaRising[i] = False
@@ -119,6 +129,11 @@ try:
             conn.sendall(temperature_buf)
             Ta = [0.0]*16
             sleep(3)
+            # boiler flow temperature set
+            # data = conn.recv(1024)
+            # print(data)
+            # digital_pot.POT0_Dn = digital_pot.set_dn(data)
+            # digital_pot.digital_pot_write(digital_pot.POT0_SEL, digital_pot.POT0_Dn)
         for x in PinsA:
             voltage = capture(x, csA)
             temperature = convert_to_temp(voltage)
@@ -127,7 +142,7 @@ try:
             voltage = capture(x, csB)
             temperature = convert_to_temp(voltage)
             Ta[x+8] += temperature
-        sleep(0.1)
+        sleep(0.3)
         counter += 1
 
 except KeyboardInterrupt:
@@ -136,19 +151,14 @@ except KeyboardInterrupt:
 except OSError:
     print('os error')
     print('resetting')
+    conn.close()
+    wlan.disconnect()
+    x = 0
+    while x < 10:
+        led.low()
+        sleep(0.5)
+        led.high()
+        sleep(0.5)
+        x = x+1
     sleep(2)
     machine.reset()
-
-
-# with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-#    s.bind((HOST, PORT))
-#    s.listen()
-#    conn, addr = s.accept()
-#    with conn:
-#        print(f"Connected by {addr}")
-#        while True:
-#           data = conn.recv(1024)
-#            if not data:
-#                break
-#            conn.sendall(data)
-
