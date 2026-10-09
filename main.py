@@ -8,12 +8,12 @@ import socket
 from time import sleep
 from machine import SPI, Pin, UART
 
-# Initialize UART1 on GP8 (TX) and GP9 (RX) at 9600 baud rate
-uart = UART(1, baudrate=9600, tx=Pin(8), rx=Pin(9)) #
+
+uart = UART(1, baudrate=115200, tx=Pin(8), rx=Pin(9), txbuf=128, timeout=1000)
 
 led = Pin("LED", Pin.OUT)
 ssid = 'Humpty'
-password = 'ttIImm11&&'
+password = '**********'
 
 HOST = "0.0.0.0"
 PORT = 22223
@@ -63,8 +63,9 @@ def open_socket():
     connection = socket.socket()
     connection.bind(address)
     connection.listen(1)
+    print(f"listening for connection on port {PORT}")
     conn, addr = connection.accept()
-    print(f"Connected by {addr}")
+    print(f"connected by {addr}")
     data = conn.recv(1024)
     conn.sendall(data)
     return conn
@@ -91,6 +92,8 @@ def capture(pin, cs):
         spi.write_readinto(out_buf, in_buf)  # Simultaneously write and read bytes.
         value = ((in_buf[1] & 0x03) << 8) | in_buf[2]
         # print("value: ", value)
+    except:
+        print("unable to capture temperature values")
     finally:
         cs(1)
     return value
@@ -130,10 +133,11 @@ try:
                 temperature_buf.extend(buf)
             print(temperature_buf)
             conn.sendall(temperature_buf)
-            uart.write(b"Hello over UART pins!\n")
+            bytes_sent = uart.write(temperature_buf)
+            print("uart bytes sent: ", bytes_sent)
             if uart.any() > 0:
                 incoming_data = uart.readline()
-                print("Received:", incoming_data.decode('utf-8'))
+                print("received: ", incoming_data.decode('utf-8'))
             Ta = [0.0]*16
             sleep(3)
             # boiler flow temperature set
