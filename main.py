@@ -102,11 +102,11 @@ def capture(pin, cs):
 try:
     led.high()
     sleep(3)
-    ip, wlan = connect()
+    # ip, wlan = connect()
     led.low()
     sleep(2)
     led.high()
-    conn = open_socket()
+    # conn = open_socket()
     sleep(1)
     led.low()
     sleep(1)
@@ -132,7 +132,7 @@ try:
                 buf = bytearray(struct.pack("h", int(Ta[i]/10)))
                 temperature_buf.extend(buf)
             print(temperature_buf)
-            conn.sendall(temperature_buf)
+            # conn.sendall(temperature_buf)
             bytes_sent = uart.write(temperature_buf)
             print("uart bytes sent: ", bytes_sent)
             if uart.any() > 0:
@@ -162,8 +162,8 @@ except KeyboardInterrupt:
 except OSError:
     print('os error')
     print('resetting')
-    conn.close()
-    wlan.disconnect()
+    # conn.close()
+    # wlan.disconnect()
     x = 0
     while x < 10:
         led.low()
